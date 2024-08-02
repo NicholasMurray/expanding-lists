@@ -21,7 +21,8 @@ export const NestedList: React.FC<NestedListProps> = ({
 
       const recursivelyExpand = (
         items: NestedListItem[],
-        idsToExpand: number[]
+        idsToExpand: number[],
+        parentExpanded: boolean
       ): boolean => {
         let expandedInCurrentBranch = false;
         items.forEach((item) => {
@@ -30,16 +31,21 @@ export const NestedList: React.FC<NestedListProps> = ({
             expandedInCurrentBranch = true;
           }
           if (item.children) {
-            const childExpanded = recursivelyExpand(item.children, idsToExpand);
+            const childExpanded = recursivelyExpand(
+              item.children,
+              idsToExpand,
+              newExpanded[item.id] || parentExpanded
+            );
             if (childExpanded) {
               newExpanded[item.id] = true;
+              expandedInCurrentBranch = true;
             }
           }
         });
-        return expandedInCurrentBranch;
+        return expandedInCurrentBranch || parentExpanded;
       };
 
-      recursivelyExpand(items, idsToExpand);
+      recursivelyExpand(items, idsToExpand, false);
       return newExpanded;
     };
 
@@ -79,9 +85,9 @@ export const NestedList: React.FC<NestedListProps> = ({
         {items.map((item) => (
           <li key={item.id}>
             <div onClick={() => handleToggle(item.id)}>
-              {item.title}
+              {item.title} = {item.id}
               {item.children && (
-                <span style={{ marginLeft: "10px" }}>
+                <span style={{ marginLeft: "50px" }}>
                   {expanded[item.id] ? "-" : "+"}
                 </span>
               )}
