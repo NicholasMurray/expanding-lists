@@ -1,16 +1,11 @@
 import "./App.css";
-import { NestedList } from "./nested-list/NestedList";
-import { nestedListData } from "./nested-list/data";
+import SideNavigation from "./side-navigation/SideNavigation";
 
 function App() {
-  const initialExpandedIds = [7, 8];
   return (
     <>
-      <h1>Nested list</h1>
-      <NestedList
-        data={nestedListData}
-        initialExpandedIds={initialExpandedIds}
-      />
+      <h1>Side Navigation</h1>
+      <SideNavigation />
     </>
   );
 }
