@@ -12,28 +12,28 @@ interface NavItem {
 const initialNavData: NavItem[] = [
   {
     id: "1",
-    title: "Item 1",
+    title: "Item 1 title",
     active: false,
     children: [
       {
         id: "1.1",
-        title: "Item 1.1",
+        title: "Item 1.1 title",
         active: false,
         children: [
-          { id: "1.1.1", title: "Item 1.1.1", active: true },
-          { id: "1.1.2", title: "Item 1.1.2", active: false },
+          { id: "1.1.1", title: "Item 1.1.1 title", active: true },
+          { id: "1.1.2", title: "Item 1.1.2 title", active: false },
         ],
       },
-      { id: "1.2", title: "Item 1.2", active: false },
+      { id: "1.2", title: "Item 1.2 title", active: false },
     ],
   },
   {
     id: "2",
-    title: "Item 2",
+    title: "Item 2 title",
     active: false,
     children: [
-      { id: "2.1", title: "Item 2.1", active: false },
-      { id: "2.2", title: "Item 2.2", active: false },
+      { id: "2.1", title: "Item 2.1 title", active: false },
+      { id: "2.2", title: "Item 2.2 title", active: false },
     ],
   },
 ];
