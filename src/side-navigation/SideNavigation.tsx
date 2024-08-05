@@ -61,7 +61,7 @@ const expandActivePaths = (items: NavItem[]): NavItem[] => {
   });
 };
 
-const SideNavigation: React.FC = () => {
+export const SideNavigation: React.FC = () => {
   const [navData, setNavData] = useState<NavItem[]>([]);
   const [allExpanded, setAllExpanded] = useState<boolean>(false);
 
@@ -158,5 +158,3 @@ const SideNavigation: React.FC = () => {
     </div>
   );
 };
-
-export default SideNavigation;
