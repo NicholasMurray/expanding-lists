@@ -1,0 +1,18 @@
+.navItem {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.expanded {
+  border: 1px solid blue;
+  background-color: white;
+  margin-bottom: 5px;
+}
+
+.active {
+  color: blue;
+}
+
+.children {
+  margin-left: 15px;
+}

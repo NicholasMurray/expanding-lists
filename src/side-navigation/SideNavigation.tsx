@@ -1,160 +1,120 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import styles from "./SideNavigation.module.css";
 
-// Define types for the navigation data structure
-interface NavItem {
+type NavItem = {
   id: string;
-  title: string;
-  active: boolean;
+  label: string;
+  expanded?: boolean;
   children?: NavItem[];
-}
+};
 
-// Sample navigation data structure
-const initialNavData: NavItem[] = [
+const initialNavItems: NavItem[] = [
   {
     id: "1",
-    title: "Item 1 title",
-    active: false,
+    label: "Item 1 title",
+    expanded: true,
     children: [
       {
-        id: "1.1",
-        title: "Item 1.1 title",
-        active: false,
+        id: "1-1",
+        label: "Item 1.1 title",
+        expanded: true,
         children: [
-          { id: "1.1.1", title: "Item 1.1.1 title", active: true },
-          { id: "1.1.2", title: "Item 1.1.2 title", active: false },
+          { id: "1-1-1", label: "Item 1.1.1 title", expanded: true },
+          { id: "1-1-2", label: "Item 1.1.2 title" },
         ],
       },
-      { id: "1.2", title: "Item 1.2 title", active: false },
+      { id: "1-2", label: "Item 1.2 title" },
     ],
   },
   {
     id: "2",
-    title: "Item 2 title",
-    active: false,
+    label: "Item 2 title",
     children: [
-      { id: "2.1", title: "Item 2.1 title", active: false },
-      { id: "2.2", title: "Item 2.2 title", active: false },
+      { id: "2-1", label: "Item 2.1 title" },
+      { id: "2-2", label: "Item 2.2 title" },
     ],
+  },
+  {
+    id: "3",
+    label: "Item 3 title",
+    expanded: false,
   },
 ];
 
-const expandActivePaths = (items: NavItem[]): NavItem[] => {
-  return items.map((item) => {
-    if (item.children) {
-      const hasActiveChild = item.children.some(
-        (child) =>
-          child.active ||
-          (child.children &&
-            expandActivePaths(child.children).some(
-              (grandChild) => grandChild.active
-            ))
-      );
-      if (hasActiveChild) {
-        return {
-          ...item,
-          active: true,
-          children: expandActivePaths(item.children),
-        };
-      }
-    }
-    return item;
-  });
-};
+const SideNavigation: React.FC = () => {
+  const [navItems, setNavItems] = useState(initialNavItems);
+  const [allExpanded, setAllExpanded] = useState(false);
+  const [activeItemId, setActiveItemId] = useState<string | null>(null);
 
-export const SideNavigation: React.FC = () => {
-  const [navData, setNavData] = useState<NavItem[]>([]);
-  const [allExpanded, setAllExpanded] = useState<boolean>(false);
-
-  useEffect(() => {
-    setNavData(expandActivePaths(initialNavData));
-  }, []);
-
-  const toggleActiveState = (path: number[]) => {
-    const updateNavData = (
-      items: NavItem[],
-      pathIndex: number = 0
-    ): NavItem[] => {
-      return items.map((item, index) => {
-        if (index === path[pathIndex]) {
-          if (pathIndex === path.length - 1) {
-            return { ...item, active: !item.active };
-          } else if (item.children) {
-            return {
-              ...item,
-              children: updateNavData(item.children, pathIndex + 1),
-            };
-          }
+  const toggleItem = (id: string) => {
+    const toggle = (items: NavItem[]): NavItem[] => {
+      return items.map((item) => {
+        if (item.id === id) {
+          return { ...item, expanded: !item.expanded };
+        }
+        if (item.children) {
+          return { ...item, children: toggle(item.children) };
         }
         return item;
       });
     };
-
-    setNavData(updateNavData(navData));
+    setNavItems(toggle(navItems));
   };
 
-  const expandAll = (items: NavItem[]): NavItem[] => {
-    return items.map((item) => ({
-      ...item,
-      active: true,
-      children: item.children ? expandAll(item.children) : item.children,
-    }));
-  };
-
-  const contractAll = (items: NavItem[]): NavItem[] => {
-    return items.map((item) => ({
-      ...item,
-      active: false,
-      children: item.children ? contractAll(item.children) : item.children,
-    }));
-  };
-
-  const handleToggleExpandAll = () => {
-    if (allExpanded) {
-      setNavData(contractAll(navData));
+  const handleClick = (item: NavItem) => {
+    if (!item.children) {
+      setActiveItemId(item.id);
     } else {
-      setNavData(expandAll(navData));
+      toggleItem(item.id);
     }
-    setAllExpanded(!allExpanded);
   };
 
-  const renderNavItems = (
-    items: NavItem[],
-    path: number[] = []
-  ): JSX.Element => {
+  const toggleAll = () => {
+    const expand = (items: NavItem[], expanded: boolean): NavItem[] => {
+      return items.map((item) => ({
+        ...item,
+        expanded,
+        children: item.children
+          ? expand(item.children, expanded)
+          : item.children,
+      }));
+    };
+    setAllExpanded(!allExpanded);
+    setNavItems(expand(navItems, !allExpanded));
+  };
+
+  const renderNavItems = (items: NavItem[]) => {
     return (
       <ul>
-        {items.map((item, index) => {
-          const currentPath = [...path, index];
-          return (
-            <li key={item.id}>
-              <div
-                onClick={() => toggleActiveState(currentPath)}
-                style={{
-                  cursor: "pointer",
-                  fontWeight: item.active ? "bold" : "normal",
-                }}
-              >
-                {item.children ? (item.active ? "[-] " : "[+] ") : ""}
-                {item.title}
+        {items.map((item) => (
+          <li key={item.id}>
+            <div
+              className={`${styles.navItem} ${
+                item.expanded && item.children ? styles.expanded : ""
+              } ${activeItemId === item.id && !item.children ? styles.active : ""}`}
+              onClick={() => handleClick(item)}
+            >
+              {item.label} {item.children && (item.expanded ? "-" : "+")}
+            </div>
+            {item.expanded && item.children && (
+              <div className={styles.children}>
+                {renderNavItems(item.children)}
               </div>
-              {item.active &&
-                item.children &&
-                renderNavItems(item.children, currentPath)}
-            </li>
-          );
-        })}
+            )}
+          </li>
+        ))}
       </ul>
     );
   };
 
   return (
     <div>
-      <div>
-        <button onClick={handleToggleExpandAll}>
-          {allExpanded ? "Contract All" : "Expand All"}
-        </button>
-      </div>
-      {renderNavItems(navData)}
+      <button onClick={toggleAll}>
+        {allExpanded ? "Contract All" : "Expand All"}
+      </button>
+      {renderNavItems(navItems)}
     </div>
   );
 };
+
+export default SideNavigation;
