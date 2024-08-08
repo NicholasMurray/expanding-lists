@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./SideNavigation.module.css";
 
 type NavItem = {
@@ -8,43 +8,54 @@ type NavItem = {
   children?: NavItem[];
 };
 
+type SideNavigationProps = {
+  expandAll: boolean;
+};
+
 const initialNavItems: NavItem[] = [
   {
     id: "1",
-    label: "Item 1 title",
+    label: "Item 1",
     expanded: true,
     children: [
       {
         id: "1-1",
-        label: "Item 1.1 title",
+        label: "Item 1.1",
         expanded: true,
         children: [
-          { id: "1-1-1", label: "Item 1.1.1 title", expanded: true },
-          { id: "1-1-2", label: "Item 1.1.2 title" },
+          { id: "1-1-1", label: "Item 1.1.1", expanded: true },
+          { id: "1-1-2", label: "Item 1.1.2" },
         ],
       },
-      { id: "1-2", label: "Item 1.2 title" },
+      { id: "1-2", label: "Item 1.2" },
     ],
   },
   {
     id: "2",
-    label: "Item 2 title",
+    label: "Item 2",
     children: [
-      { id: "2-1", label: "Item 2.1 title" },
-      { id: "2-2", label: "Item 2.2 title" },
+      { id: "2-1", label: "Item 2.1" },
+      { id: "2-2", label: "Item 2.2" },
     ],
-  },
-  {
-    id: "3",
-    label: "Item 3 title",
-    expanded: false,
   },
 ];
 
-const SideNavigation: React.FC = () => {
+const SideNavigation: React.FC<SideNavigationProps> = ({ expandAll }) => {
   const [navItems, setNavItems] = useState(initialNavItems);
-  const [allExpanded, setAllExpanded] = useState(false);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const expand = (items: NavItem[], expanded: boolean): NavItem[] => {
+      return items.map((item) => ({
+        ...item,
+        expanded,
+        children: item.children
+          ? expand(item.children, expanded)
+          : item.children,
+      }));
+    };
+    setNavItems(expand(navItems, expandAll));
+  }, [expandAll]);
 
   const toggleItem = (id: string) => {
     const toggle = (items: NavItem[]): NavItem[] => {
@@ -67,20 +78,6 @@ const SideNavigation: React.FC = () => {
     } else {
       toggleItem(item.id);
     }
-  };
-
-  const toggleAll = () => {
-    const expand = (items: NavItem[], expanded: boolean): NavItem[] => {
-      return items.map((item) => ({
-        ...item,
-        expanded,
-        children: item.children
-          ? expand(item.children, expanded)
-          : item.children,
-      }));
-    };
-    setAllExpanded(!allExpanded);
-    setNavItems(expand(navItems, !allExpanded));
   };
 
   const renderNavItems = (items: NavItem[]) => {
@@ -107,14 +104,7 @@ const SideNavigation: React.FC = () => {
     );
   };
 
-  return (
-    <div>
-      <button onClick={toggleAll}>
-        {allExpanded ? "Contract All" : "Expand All"}
-      </button>
-      {renderNavItems(navItems)}
-    </div>
-  );
+  return <div>{renderNavItems(navItems)}</div>;
 };
 
 export default SideNavigation;

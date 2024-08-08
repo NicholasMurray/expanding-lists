@@ -1,13 +1,21 @@
-import "./App.css";
+import React, { useState } from "react";
 import SideNavigation from "./side-navigation/SideNavigation";
 
-function App() {
+const App: React.FC = () => {
+  const [expandAll, setExpandAll] = useState(false);
+
+  const toggleExpandAll = () => {
+    setExpandAll(!expandAll);
+  };
+
   return (
-    <>
-      <h1>Side Navigation</h1>
-      <SideNavigation />
-    </>
+    <div>
+      <button onClick={toggleExpandAll}>
+        {expandAll ? "Collapse All" : "Expand All"}
+      </button>
+      <SideNavigation expandAll={expandAll} />
+    </div>
   );
-}
+};
 
 export default App;
