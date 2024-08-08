@@ -45,16 +45,18 @@ const SideNavigation: React.FC<SideNavigationProps> = ({ expandAll }) => {
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
 
   useEffect(() => {
-    const expand = (items: NavItem[], expanded: boolean): NavItem[] => {
-      return items.map((item) => ({
-        ...item,
-        expanded,
-        children: item.children
-          ? expand(item.children, expanded)
-          : item.children,
-      }));
-    };
-    setNavItems(expand(navItems, expandAll));
+    setNavItems((prevNavItems) => {
+      const expand = (items: NavItem[], expanded: boolean): NavItem[] => {
+        return items.map((item) => ({
+          ...item,
+          expanded,
+          children: item.children
+            ? expand(item.children, expanded)
+            : item.children,
+        }));
+      };
+      return expand(prevNavItems, expandAll);
+    });
   }, [expandAll]);
 
   const toggleItem = (id: string) => {
