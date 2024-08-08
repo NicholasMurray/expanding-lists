@@ -9,33 +9,34 @@ type NavItem = {
 };
 
 type SideNavigationProps = {
-  expandAll: boolean;
+  expandAll?: boolean;
 };
 
 const initialNavItems: NavItem[] = [
   {
     id: "1",
     label: "Item 1",
-    expanded: true,
+    expanded: false,
     children: [
       {
         id: "1-1",
         label: "Item 1.1",
-        expanded: true,
+        expanded: false,
         children: [
-          { id: "1-1-1", label: "Item 1.1.1", expanded: true },
-          { id: "1-1-2", label: "Item 1.1.2" },
+          { id: "1-1-1", label: "Item 1.1.1", expanded: false },
+          { id: "1-1-2", label: "Item 1.1.2", expanded: false },
         ],
       },
-      { id: "1-2", label: "Item 1.2" },
+      { id: "1-2", label: "Item 1.2", expanded: false },
     ],
   },
   {
     id: "2",
     label: "Item 2",
+    expanded: false,
     children: [
-      { id: "2-1", label: "Item 2.1" },
-      { id: "2-2", label: "Item 2.2" },
+      { id: "2-1", label: "Item 2.1", expanded: false },
+      { id: "2-2", label: "Item 2.2", expanded: false },
     ],
   },
 ];
@@ -44,19 +45,22 @@ const SideNavigation: React.FC<SideNavigationProps> = ({ expandAll }) => {
   const [navItems, setNavItems] = useState(initialNavItems);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
 
+  // Effect to handle expand/collapse all when the expandAll prop changes
   useEffect(() => {
-    setNavItems((prevNavItems) => {
-      const expand = (items: NavItem[], expanded: boolean): NavItem[] => {
-        return items.map((item) => ({
-          ...item,
-          expanded,
-          children: item.children
-            ? expand(item.children, expanded)
-            : item.children,
-        }));
-      };
-      return expand(prevNavItems, expandAll);
-    });
+    if (expandAll !== undefined) {
+      setNavItems((prevNavItems) => {
+        const expandCollapse = (items: NavItem[]): NavItem[] => {
+          return items.map((item) => ({
+            ...item,
+            expanded: expandAll,
+            children: item.children
+              ? expandCollapse(item.children)
+              : item.children,
+          }));
+        };
+        return expandCollapse(prevNavItems);
+      });
+    }
   }, [expandAll]);
 
   const toggleItem = (id: string) => {
